@@ -1,0 +1,6 @@
+---
+- name: confirm rollback
+  cisco.ios.ios_command:
+    commands:
+      - command: configure confirm
+  listen: confirm rollback

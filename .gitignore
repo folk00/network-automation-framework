@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Runtime artifacts
+outputs/*
+!outputs/.gitkeep
+*.log
+
+# Credentials (never commit)
+.env
+*.pem
+*.key
+secrets.yml
+ansible/vault/secrets.yml
+ansible/rendered/
+ansible/backups/
+.vault_pass*
+
+# demos / personal prep — not for public repo
+docs/INTERVIEW_NOTES*
+docs/demos/
+ai_coach_report*.md
+ansible/ANSIBLE_WALKTHROUGH*
+ansible/build_walkthrough_docx.py
+ansible/deploy_output.txt
+
+# containerlab runtime state — regenerated each `make up`
+lab/clab-*/
+

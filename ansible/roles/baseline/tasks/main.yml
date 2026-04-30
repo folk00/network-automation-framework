@@ -1,0 +1,32 @@
+---
+- name: Render baseline config
+  ansible.builtin.template:
+    src: baseline.j2
+    dest: "{{ playbook_dir }}/../rendered/{{ inventory_hostname }}_baseline.cfg"
+    mode: "0644"
+  delegate_to: localhost
+  changed_when: false
+  tags: [render, baseline]
+
+- name: Apply baseline (idempotent merge)
+  cisco.ios.ios_config:
+    src: "{{ playbook_dir }}/../rendered/{{ inventory_hostname }}_baseline.cfg"
+    save_when: modified
+  when: deploy_mode | default(false) | bool
+  tags: [deploy, baseline]
+
+- name: Verify SNMP location is set
+  cisco.ios.ios_command:
+    commands: ["show snmp location"]
+  register: snmp_loc
+  when: deploy_mode | default(false) | bool
+  changed_when: false
+  tags: [validate, baseline]
+
+- name: Assert SNMP location matches inventory
+  ansible.builtin.assert:
+    that:
+      - snmp_loc.stdout[0] is search(snmp_location)
+    fail_msg: "SNMP location not applied (got '{{ snmp_loc.stdout[0] | default('') }}')"
+  when: deploy_mode | default(false) | bool
+  tags: [validate, baseline]

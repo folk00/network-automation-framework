@@ -1,0 +1,43 @@
+# 3-node OSPF lab on Arista cEOS (free image, runs in Docker via containerlab).
+# Topology:
+#
+#                 Et1 ─────── Et1
+#       ┌──── r1 ──────────────── r2 ────┐
+#       │   Et2                     Et2  │
+#       │                                │
+#       └──────── r3 ────────────────────┘
+#                Et1               Et2
+#
+# Loopbacks: r1=10.255.0.11/32, r2=10.255.0.12/32, r3=10.255.0.13/32
+# All P2P /30 links in 10.20.x.x. OSPF area 0 with MD5 auth.
+
+name: ospf-lab
+prefix: ""
+
+mgmt:
+  network: clab-ospf-mgmt
+  ipv4-subnet: 172.30.30.0/24
+
+topology:
+  kinds:
+    arista_ceos:
+      image: ${CEOS_IMAGE:-ceos:4.32.0F}
+
+  nodes:
+    r1:
+      kind: arista_ceos
+      mgmt-ipv4: 172.30.30.11
+      startup-config: startup-configs/r1.cfg
+    r2:
+      kind: arista_ceos
+      mgmt-ipv4: 172.30.30.12
+      startup-config: startup-configs/r2.cfg
+    r3:
+      kind: arista_ceos
+      mgmt-ipv4: 172.30.30.13
+      startup-config: startup-configs/r3.cfg
+
+  links:
+    - endpoints: ["r1:eth1", "r2:eth1"]   # 10.20.1.0/30
+    - endpoints: ["r1:eth2", "r3:eth1"]   # 10.20.1.4/30
+    - endpoints: ["r2:eth2", "r3:eth2"]   # 10.20.1.8/30

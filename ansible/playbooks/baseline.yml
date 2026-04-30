@@ -1,0 +1,11 @@
+---
+# Apply baseline (NTP, DNS, syslog, SNMP, users, banner) to every device.
+#   ansible-playbook playbooks/baseline.yml --ask-vault-pass
+- hosts: all
+  gather_facts: false
+  vars:
+    deploy_mode: true
+  vars_files:
+    - ../vault/secrets.yml
+  roles:
+    - baseline

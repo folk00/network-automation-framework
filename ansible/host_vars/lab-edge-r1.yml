@@ -1,0 +1,4 @@
+---
+# Per-host override example. Demonstrates inventory variable layering:
+#   defaults < group_vars/all < group_vars/<group> < host_vars/<host>
+snmp_contact: "primary-oncall@example.net"

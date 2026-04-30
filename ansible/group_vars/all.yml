@@ -1,0 +1,32 @@
+---
+# Site-wide defaults. Override at group_vars/<group>.yml or host_vars/<host>.yml.
+
+# DNS / NTP / logging
+ntp_servers:
+  - 10.0.0.1
+  - 10.0.0.2
+dns_servers:
+  - 10.0.0.10
+  - 10.0.0.11
+syslog_servers:
+  - 10.0.0.20
+domain_name: lab.example.net
+
+# SNMP
+snmp_location: "lab"
+snmp_contact:  "neteng@example.net"
+snmp_communities:
+  - { name: "{{ vault_snmp_ro }}", access: ro }
+
+# AAA / users
+local_users:
+  - { name: netadmin, privilege: 15, secret_hash: "{{ vault_netadmin_secret }}" }
+
+# Banners
+banner_motd: |
+  ---------------------------------------------------------------
+  Authorized access only. All activity is logged and monitored.
+  ---------------------------------------------------------------
+
+# Backups
+backup_dir: "{{ playbook_dir }}/../backups"

@@ -1,0 +1,42 @@
+# Inventory for the containerlab cEOS lab.
+# Pairs with lab/topology.clab.yml.
+# Username/password match lab/startup-configs/*.cfg.
+
+all:
+  vars:
+    ansible_connection: ansible.netcommon.network_cli
+    ansible_network_os: arista.eos.eos
+    ansible_user: admin
+    ansible_password: admin
+    ansible_become: true
+    ansible_become_method: enable
+
+  children:
+    clab:
+      hosts:
+        r1:
+          ansible_host: 172.30.30.11
+          loopback: { id: 0, ip: 10.255.0.11, prefix: 32 }
+          ospf_process_id: 10
+          ospf_router_id:  10.255.0.11
+          interfaces:
+            - { name: Ethernet1, description: "to r2", ip: 10.20.1.1, prefix: 30, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: LabKey1 }
+            - { name: Ethernet2, description: "to r3", ip: 10.20.1.5, prefix: 30, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: LabKey1 }
+
+        r2:
+          ansible_host: 172.30.30.12
+          loopback: { id: 0, ip: 10.255.0.12, prefix: 32 }
+          ospf_process_id: 10
+          ospf_router_id:  10.255.0.12
+          interfaces:
+            - { name: Ethernet1, description: "to r1", ip: 10.20.1.2, prefix: 30, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: LabKey1 }
+            - { name: Ethernet2, description: "to r3", ip: 10.20.1.9, prefix: 30, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: LabKey1 }
+
+        r3:
+          ansible_host: 172.30.30.13
+          loopback: { id: 0, ip: 10.255.0.13, prefix: 32 }
+          ospf_process_id: 10
+          ospf_router_id:  10.255.0.13
+          interfaces:
+            - { name: Ethernet1, description: "to r1", ip: 10.20.1.6,  prefix: 30, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: LabKey1 }
+            - { name: Ethernet2, description: "to r2", ip: 10.20.1.10, prefix: 30, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: LabKey1 }

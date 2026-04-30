@@ -1,0 +1,4 @@
+---
+ospf_passive_default: true
+ospf_area_authentication: message-digest
+deploy_revert_timer_min: 0  # Arista uses sessions, not timer-based revert

@@ -1,0 +1,11 @@
+---
+# Dry-run: show diff vs running-config, no changes pushed.
+#   ansible-playbook -i inventories/lab.yml  playbooks/dry_run.yml
+#   ansible-playbook -i inventories/clab.yml playbooks/dry_run.yml
+- hosts: edge:aggregation:clab
+  gather_facts: false
+  vars:
+    deploy_mode: false
+  roles:
+    - role: ospf_edge
+      tags: [render, dry-run]
