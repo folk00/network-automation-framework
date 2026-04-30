@@ -1,0 +1,12 @@
+---
+# Deploy: push config under platform-appropriate rollback + post-validate.
+# Targets both Cisco IOS edge/aggregation hosts and the cEOS lab.
+#   ansible-playbook -i inventories/lab.yml  playbooks/deploy.yml
+#   ansible-playbook -i inventories/clab.yml playbooks/deploy.yml
+- hosts: edge:aggregation:clab
+  gather_facts: false
+  serial: 4
+  vars:
+    deploy_mode: true
+  roles:
+    - role: ospf_edge

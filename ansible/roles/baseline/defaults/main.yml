@@ -1,0 +1,10 @@
+---
+domain_name: lab.example.net
+ntp_servers: []
+dns_servers: []
+syslog_servers: []
+snmp_communities: []
+snmp_location: ""
+snmp_contact: ""
+local_users: []
+banner_motd: ""

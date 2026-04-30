@@ -1,0 +1,103 @@
+name: integration-lab
+
+# Integration test: spin up the cEOS containerlab topology and run the full
+# render → deploy → validate flow against real virtual routers.
+#
+# This workflow requires the cEOS image to be available. Because Arista does
+# not allow public redistribution, the image is fetched from a private URL
+# stored as a repository secret. The job is skipped (not failed) when the
+# secret is missing, so the rest of CI keeps working for forks.
+
+on:
+  workflow_dispatch:        # manual trigger from the Actions tab
+  push:
+    paths:
+      - 'lab/**'
+      - 'ansible/roles/ospf_edge/**'
+      - 'ansible/inventories/clab.yml'
+      - '.github/workflows/integration.yml'
+
+jobs:
+  ceos-lab:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+
+    steps:
+      - name: Check for cEOS image source
+        id: gate
+        run: |
+          if [ -z "${{ secrets.CEOS_IMAGE_URL }}" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "::warning::CEOS_IMAGE_URL secret not set — skipping integration lab. See lab/README.md."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.skip == 'false'
+
+      - name: Install containerlab
+        if: steps.gate.outputs.skip == 'false'
+        run: bash -c "$(curl -sL https://get.containerlab.dev)"
+
+      - name: Pull and import cEOS image
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          CEOS_IMAGE_URL: ${{ secrets.CEOS_IMAGE_URL }}
+        run: |
+          curl -sSL "$CEOS_IMAGE_URL" -o /tmp/ceos.tar
+          docker import /tmp/ceos.tar ceos:4.32.0F
+          docker image ls | grep ceos
+
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.skip == 'false'
+        with:
+          python-version: "3.11"
+
+      - name: Install Ansible + collections
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          pip install "ansible-core>=2.15"
+          ansible-galaxy collection install -r ansible/requirements.yml
+
+      - name: Spin up the lab
+        if: steps.gate.outputs.skip == 'false'
+        working-directory: lab
+        run: sudo -E containerlab deploy -t topology.clab.yml
+
+      - name: Wait for cEOS to accept SSH
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          for ip in 172.30.30.11 172.30.30.12 172.30.30.13; do
+            for i in $(seq 1 30); do
+              if nc -z -w 2 "$ip" 22; then echo "$ip ready"; break; fi
+              sleep 5
+            done
+          done
+
+      - name: Reachability check
+        if: steps.gate.outputs.skip == 'false'
+        working-directory: ansible
+        run: ansible-playbook -i inventories/clab.yml playbooks/check_reachability.yml
+
+      - name: Render configs
+        if: steps.gate.outputs.skip == 'false'
+        working-directory: ansible
+        run: ansible-playbook -i inventories/clab.yml playbooks/render.yml --connection=local
+
+      - name: Deploy + validate (the real test)
+        if: steps.gate.outputs.skip == 'false'
+        working-directory: ansible
+        run: ansible-playbook -i inventories/clab.yml playbooks/deploy.yml -v
+
+      - name: Tear down
+        if: always() && steps.gate.outputs.skip == 'false'
+        working-directory: lab
+        run: sudo containerlab destroy -t topology.clab.yml --cleanup
+
+      - name: Upload rendered configs as artifact
+        if: steps.gate.outputs.skip == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: rendered-configs
+          path: ansible/rendered/

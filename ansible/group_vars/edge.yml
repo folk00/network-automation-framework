@@ -1,0 +1,4 @@
+---
+# Edge-specific overrides go here.
+snmp_location: "edge-site"
+ospf_passive_default: true

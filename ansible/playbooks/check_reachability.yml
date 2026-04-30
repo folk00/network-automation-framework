@@ -1,0 +1,25 @@
+---
+# Reachability + minimal facts. Useful as a smoke-test before any change.
+#   ansible-playbook playbooks/check_reachability.yml
+- hosts: all
+  gather_facts: false
+  tasks:
+    - name: Ping device CLI
+      cisco.ios.ios_command:
+        commands: ["show clock"]
+      register: clk
+      changed_when: false
+      retries: 2
+      delay: 5
+      until: clk is succeeded
+
+    - name: Show device clock + version banner
+      cisco.ios.ios_command:
+        commands:
+          - "show version | include uptime|Software"
+      register: ver
+      changed_when: false
+
+    - name: Print summary
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }} OK — {{ ver.stdout[0].splitlines() | first }}"

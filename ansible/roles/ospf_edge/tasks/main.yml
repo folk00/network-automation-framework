@@ -1,0 +1,121 @@
+---
+# Multi-vendor OSPF edge role.
+# Picks the right template + module based on ansible_network_os.
+#
+# Supported:
+#   - cisco.ios.ios   → ios_ospf.j2 + cisco.ios.ios_config (revert-timer rollback)
+#   - arista.eos.eos  → eos_ospf.j2 + arista.eos.eos_config (session-based)
+
+- name: Detect target template
+  ansible.builtin.set_fact:
+    ospf_template_src: "{{ 'eos_ospf.j2' if ansible_network_os == 'arista.eos.eos' else 'ios_ospf.j2' }}"
+    rendered_path: "{{ playbook_dir }}/../rendered/{{ inventory_hostname }}.cfg"
+  tags: [render, dry-run, deploy]
+
+- name: Render intended config from template
+  ansible.builtin.template:
+    src: "{{ ospf_template_src }}"
+    dest: "{{ rendered_path }}"
+    mode: "0644"
+  delegate_to: localhost
+  changed_when: false
+  tags: [render]
+
+# ----------------------------- Cisco IOS path -----------------------------
+
+- name: "[IOS] Show diff against running-config (dry-run)"
+  cisco.ios.ios_config:
+    src: "{{ rendered_path }}"
+    diff_against: running
+  check_mode: true
+  diff: true
+  register: cfg_diff_ios
+  when:
+    - ansible_network_os == 'cisco.ios.ios'
+  tags: [dry-run]
+
+- name: "[IOS] Arm rollback timer + push config"
+  cisco.ios.ios_config:
+    src: "{{ rendered_path }}"
+    save_when: modified
+  when:
+    - ansible_network_os == 'cisco.ios.ios'
+    - deploy_mode | default(false) | bool
+  notify: confirm rollback
+  tags: [deploy]
+
+# ----------------------------- Arista EOS path -----------------------------
+
+- name: "[EOS] Show diff against running-config (dry-run)"
+  arista.eos.eos_config:
+    src: "{{ rendered_path }}"
+    diff_against: running
+  check_mode: true
+  diff: true
+  register: cfg_diff_eos
+  when:
+    - ansible_network_os == 'arista.eos.eos'
+  tags: [dry-run]
+
+- name: "[EOS] Push config in a session (atomic; rolls back on disconnect)"
+  arista.eos.eos_config:
+    src: "{{ rendered_path }}"
+    save_when: modified
+  when:
+    - ansible_network_os == 'arista.eos.eos'
+    - deploy_mode | default(false) | bool
+  tags: [deploy]
+
+# ----------------------------- Validation (vendor-agnostic) ---------------
+
+- name: "Wait for OSPF to converge before validating"
+  ansible.builtin.wait_for:
+    timeout: "{{ ospf_converge_wait | default(45) }}"
+  delegate_to: localhost
+  run_once: true
+  when: deploy_mode | default(false) | bool
+  tags: [deploy, validate]
+
+- name: "Collect post-check show commands"
+  ansible.netcommon.cli_command:
+    command: "{{ item }}"
+  register: post_raw
+  loop:
+    - "show ip interface brief"
+    - "show ip ospf neighbor"
+  loop_control:
+    label: "{{ item }}"
+  changed_when: false
+  when: deploy_mode | default(false) | bool
+  tags: [deploy, validate]
+
+- name: "Index post-check output by command"
+  ansible.builtin.set_fact:
+    post: >-
+      {{ dict(post_raw.results
+              | map(attribute='item')
+              | zip(post_raw.results | map(attribute='stdout'))) }}
+  when: deploy_mode | default(false) | bool
+  tags: [deploy, validate]
+
+- name: "Assert configured interfaces are up/up"
+  ansible.builtin.assert:
+    that:
+      - post['show ip interface brief'] is search(item.name + '.*up\\s+up')
+    fail_msg: "{{ item.name }} is not up/up after deploy"
+  loop: "{{ interfaces }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: deploy_mode | default(false) | bool
+  tags: [validate]
+
+- name: "Assert OSPF neighbor reached FULL on every routed interface"
+  ansible.builtin.assert:
+    that:
+      - post['show ip ospf neighbor'] is search('FULL.*' + item.name)
+    fail_msg: "no OSPF FULL neighbor on {{ item.name }}"
+  loop: "{{ interfaces }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: deploy_mode | default(false) | bool
+  tags: [validate]

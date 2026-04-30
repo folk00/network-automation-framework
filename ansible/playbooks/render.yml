@@ -1,0 +1,17 @@
+---
+# Render configs only — no device connections, useful for code review.
+#   ansible-playbook -i inventories/lab.yml  playbooks/render.yml --connection=local
+#   ansible-playbook -i inventories/clab.yml playbooks/render.yml --connection=local
+- hosts: edge:aggregation:clab
+  gather_facts: false
+  connection: local
+  tasks:
+    - name: Pick template based on platform
+      ansible.builtin.set_fact:
+        ospf_template_src: "{{ 'eos_ospf.j2' if ansible_network_os == 'arista.eos.eos' else 'ios_ospf.j2' }}"
+
+    - name: Render intended config
+      ansible.builtin.template:
+        src: "../roles/ospf_edge/templates/{{ ospf_template_src }}"
+        dest: "{{ playbook_dir }}/../rendered/{{ inventory_hostname }}.cfg"
+        mode: "0644"

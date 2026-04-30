@@ -1,0 +1,54 @@
+# Lab inventory — three Cisco IOS-XE routers, OSPF area 0.
+# Mirrors examples/inventory.yml from the Python framework so the two
+# implementations stay 1:1 comparable.
+
+all:
+  vars:
+    ansible_connection: ansible.netcommon.network_cli
+    ansible_network_os: cisco.ios.ios
+    ansible_user: "{{ lookup('env', 'NET_USER') }}"
+    ansible_password: "{{ lookup('env', 'NET_PASS') }}"
+    ansible_become: true
+    ansible_become_method: enable
+    ansible_become_password: "{{ lookup('env', 'NET_SECRET') }}"
+
+  children:
+    edge:
+      hosts:
+        lab-edge-r1:
+          ansible_host: 10.20.0.11
+          loopback: { id: 0, ip: 10.255.0.11, mask: 255.255.255.255 }
+          ospf_process_id: 10
+          ospf_router_id:  10.255.0.11
+          interfaces:
+            - { name: GigabitEthernet0/0/1, description: "to lab-core-sw1",   ip: 10.20.1.1,  mask: 255.255.255.252, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: REPLACE_ME_KEY1 }
+            - { name: GigabitEthernet0/0/2, description: "to lab-core-sw2",   ip: 10.20.1.5,  mask: 255.255.255.252, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: REPLACE_ME_KEY1 }
+            - { name: GigabitEthernet0/0/3, description: "to lab-wan-1",      ip: 10.20.1.9,  mask: 255.255.255.252, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: REPLACE_ME_KEY1 }
+            - { name: GigabitEthernet0/0/4, description: "to lab-wan-2",      ip: 10.20.1.13, mask: 255.255.255.252, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: REPLACE_ME_KEY1 }
+            - { name: GigabitEthernet0/0/5, description: "transit to r2",     ip: 10.20.1.17, mask: 255.255.255.252, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: REPLACE_ME_KEY1 }
+
+        lab-edge-r2:
+          ansible_host: 10.20.0.12
+          loopback: { id: 0, ip: 10.255.0.12, mask: 255.255.255.255 }
+          ospf_process_id: 10
+          ospf_router_id:  10.255.0.12
+          interfaces:
+            - { name: GigabitEthernet0/0/1, description: "to lab-core-sw1",   ip: 10.20.2.1,  mask: 255.255.255.252, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: REPLACE_ME_KEY1 }
+            - { name: GigabitEthernet0/0/2, description: "to lab-core-sw2",   ip: 10.20.2.5,  mask: 255.255.255.252, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: REPLACE_ME_KEY1 }
+            - { name: GigabitEthernet0/0/3, description: "to lab-wan-3",      ip: 10.20.2.9,  mask: 255.255.255.252, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: REPLACE_ME_KEY1 }
+            - { name: GigabitEthernet0/0/4, description: "to lab-wan-4",      ip: 10.20.2.13, mask: 255.255.255.252, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: REPLACE_ME_KEY1 }
+            - { name: GigabitEthernet0/0/5, description: "transit to r1",     ip: 10.20.1.18, mask: 255.255.255.252, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: REPLACE_ME_KEY1 }
+
+    aggregation:
+      hosts:
+        lab-agg-r1:
+          ansible_host: 10.30.0.11
+          loopback: { id: 0, ip: 10.255.0.21, mask: 255.255.255.255 }
+          ospf_process_id: 10
+          ospf_router_id:  10.255.0.21
+          interfaces:
+            - { name: GigabitEthernet0/0/1, description: "to lab-agg-sw1",    ip: 10.30.1.1,  mask: 255.255.255.252, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: REPLACE_ME_KEY1 }
+            - { name: GigabitEthernet0/0/2, description: "to lab-agg-sw2",    ip: 10.30.1.5,  mask: 255.255.255.252, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: REPLACE_ME_KEY1 }
+            - { name: GigabitEthernet0/0/3, description: "to lab-wan-5",      ip: 10.30.1.9,  mask: 255.255.255.252, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: REPLACE_ME_KEY1 }
+            - { name: GigabitEthernet0/0/4, description: "to lab-wan-6",      ip: 10.30.1.13, mask: 255.255.255.252, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: REPLACE_ME_KEY1 }
+            - { name: GigabitEthernet0/0/5, description: "to lab-ce-r2",      ip: 10.30.1.17, mask: 255.255.255.252, ospf_area: 0, ospf_authentication: md5, ospf_key_id: 1, ospf_key: REPLACE_ME_KEY1 }

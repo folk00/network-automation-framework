@@ -1,0 +1,28 @@
+---
+# Pull running-config from every device to ./backups/<host>-YYYYmmdd.cfg
+#   ansible-playbook playbooks/backup.yml
+- hosts: all
+  gather_facts: false
+  vars:
+    backup_dir: "{{ playbook_dir }}/../backups"
+  tasks:
+    - name: Ensure backup directory exists
+      ansible.builtin.file:
+        path: "{{ backup_dir }}"
+        state: directory
+        mode: "0755"
+      delegate_to: localhost
+      run_once: true
+
+    - name: Capture running-config
+      cisco.ios.ios_command:
+        commands: ["show running-config"]
+      register: run_cfg
+      changed_when: false
+
+    - name: Write per-host backup file
+      ansible.builtin.copy:
+        content: "{{ run_cfg.stdout[0] }}\n"
+        dest: "{{ backup_dir }}/{{ inventory_hostname }}-{{ ansible_date_time.date | default(lookup('pipe','date +%Y%m%d')) }}.cfg"
+        mode: "0644"
+      delegate_to: localhost

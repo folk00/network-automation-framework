@@ -1,0 +1,15 @@
+---
+profile: production
+
+exclude_paths:
+  - .github/
+  - vault/secrets.yml      # encrypted, lint can't parse
+  - rendered/
+  - backups/
+
+skip_list:
+  - yaml[line-length]      # readability over wraparound for long IOS lines
+
+warn_list:
+  - experimental
+  - role-name              # role names use snake_case which lint complains about

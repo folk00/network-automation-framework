@@ -1,0 +1,40 @@
+=== r1: show ip ospf neighbor ===
+Neighbor ID     Instance VRF      Pri State                  Dead Time   Address         Interface
+10.255.0.13     10       default  1   FULL/DR                00:00:36    10.20.1.6       Ethernet2
+10.255.0.12     10       default  1   FULL/DR                00:00:35    10.20.1.2       Ethernet1
+
+=== r2: show ip ospf neighbor ===
+Neighbor ID     Instance VRF      Pri State                  Dead Time   Address         Interface
+10.255.0.13     10       default  1   FULL/DR                00:00:34    10.20.1.10      Ethernet2
+10.255.0.11     10       default  1   FULL/BDR               00:00:33    10.20.1.1       Ethernet1
+
+=== r3: show ip ospf neighbor ===
+Neighbor ID     Instance VRF      Pri State                  Dead Time   Address         Interface
+10.255.0.12     10       default  1   FULL/BDR               00:00:31    10.20.1.9       Ethernet2
+10.255.0.11     10       default  1   FULL/BDR               00:00:32    10.20.1.5       Ethernet1
+
+=== r1: show ip route ospf ===
+
+VRF: default
+Source Codes:
+       C - connected, S - static, K - kernel,
+       O - OSPF, IA - OSPF inter area, E1 - OSPF external type 1,
+       E2 - OSPF external type 2, N1 - OSPF NSSA external type 1,
+       N2 - OSPF NSSA external type2, B - Other BGP Routes,
+       B I - iBGP, B E - eBGP, R - RIP, I L1 - IS-IS level 1,
+       I L2 - IS-IS level 2, O3 - OSPFv3, A B - BGP Aggregate,
+       A O - OSPF Summary, NG - Nexthop Group Static Route,
+       V - VXLAN Control Service, M - Martian,
+       DH - DHCP client installed default route,
+       DP - Dynamic Policy Route, L - VRF Leaked,
+       G  - gRIBI, RC - Route Cache Route,
+       CL - CBF Leaked Route
+
+ O        10.20.1.8/30 [110/20]
+           via 10.20.1.2, Ethernet1
+           via 10.20.1.6, Ethernet2
+ O        10.255.0.12/32 [110/20]
+           via 10.20.1.2, Ethernet1
+ O        10.255.0.13/32 [110/20]
+           via 10.20.1.6, Ethernet2
+
