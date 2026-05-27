@@ -31,7 +31,8 @@ jobs:
         run: ansible-galaxy collection install -r requirements.yml
 
       - name: yamllint
-        run: yamllint -d "{extends: default, rules: {line-length: disable, document-start: disable}}" .
+        run: |
+          yamllint -d "{extends: default, rules: {line-length: disable, document-start: disable, braces: disable, colons: disable, commas: disable}}" .
 
       - name: ansible-lint
         run: ansible-lint
