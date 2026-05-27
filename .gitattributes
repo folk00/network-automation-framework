@@ -1,0 +1,8 @@
+ansible/**/*.yml linguist-language=Ansible
+ansible/**/*.yaml linguist-language=Ansible
+
+.github/workflows/*.yml linguist-language=YAML
+.github/workflows/*.yaml linguist-language=YAML
+
+*.docx binary
+*.xlsx binary
