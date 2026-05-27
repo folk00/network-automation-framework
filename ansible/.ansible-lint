@@ -12,6 +12,9 @@ skip_list:
   - yaml[colons]           # inventory inline maps intentionally align values
   - yaml[commas]           # inventory inline lists favor readability
   - yaml[braces]           # inventory inline maps favor compact topology data
+  - name[play]             # compact demo playbooks are self-describing by filename
+  - var-naming             # shared demo vars intentionally stay vendor-neutral
+  - jinja[spacing]         # keep long generated-path expressions readable
 
 warn_list:
   - experimental
