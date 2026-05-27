@@ -9,6 +9,9 @@ exclude_paths:
 
 skip_list:
   - yaml[line-length]      # readability over wraparound for long IOS lines
+  - yaml[colons]           # inventory inline maps intentionally align values
+  - yaml[commas]           # inventory inline lists favor readability
+  - yaml[braces]           # inventory inline maps favor compact topology data
 
 warn_list:
   - experimental
