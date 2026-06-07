@@ -28,8 +28,7 @@ ansible/backups/
 
 # Personal notes — not for public repo
 docs/notes/
-docs/INTERVIEW_NOTES*
-docs/demos/
+docs/private/
 ai_coach_report*.md
 ansible/ANSIBLE_WALKTHROUGH*
 ansible/build_walkthrough_docx.py
