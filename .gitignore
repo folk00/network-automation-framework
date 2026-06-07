@@ -26,7 +26,8 @@ ansible/rendered/
 ansible/backups/
 .vault_pass*
 
-# demos / personal prep — not for public repo
+# Personal notes — not for public repo
+docs/notes/
 docs/INTERVIEW_NOTES*
 docs/demos/
 ai_coach_report*.md

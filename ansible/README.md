@@ -107,20 +107,20 @@ ansible-lint
 | **Onboarding cost** | reader needs Python | reader needs Ansible mental model |
 | **Best fit** | bespoke parsing/correlation, large fan-out, custom reporting | inventory-driven config standardization across many roles/sites |
 
-**Honest take for the demos**: in many shops Ansible would be the right
-default. I built the Python tool because the *parsing and correlation*
+**Honest take**: in many shops Ansible would be the right
+default. The Python tool exists because the *parsing and correlation*
 requirements were specific enough that an Ansible task would have been a thin
-wrapper around the same Python anyway, and I wanted full control over the
+wrapper around the same Python anyway, and we wanted full control over the
 connection pool and the report layout. The same intent maps cleanly to
 Ansible — this folder proves it.
 
-## Design notes
+## Trade-off notes
 
-- "I can implement this either way; here's the same workflow as a role."
-- "I picked custom Python for the discovery tool because the classifier
-  precedence and CDP/OSPF correlation were the hard part, not the SSH layer."
-- "For pure config standardization across many sites, I would lead with
-  Ansible roles + `cisco.ios.ios_config`, because idempotency and inventory
-  scaling are solved problems there."
-- "Both paths converge on the same Jinja2 template — the template is the
-  source of truth for what the config should look like."
+- The same workflow can be implemented either way; this folder is the role version.
+- Custom Python was picked for the discovery tool because the classifier
+  precedence and CDP/OSPF correlation were the hard part, not the SSH layer.
+- For pure config standardization across many sites, Ansible roles +
+  `cisco.ios.ios_config` are the natural choice because idempotency and
+  inventory scaling are solved problems there.
+- Both paths converge on the same Jinja2 template — the template is the
+  source of truth for what the config should look like.

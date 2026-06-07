@@ -55,9 +55,7 @@ network-automation-framework/
 │   ├── inventory.yml             # 3 sanitized lab routers
 │   └── rendered_lab-edge-r1.cfg  # what the template emits
 ├── docs/
-│   ├── architecture.svg
-│   ├── INTERVIEW_NOTES.md
-│   └── INTERVIEW_NOTES.docx
+│   └── architecture.svg
 ├── outputs/                      # runtime artifacts (gitignored)
 └── tests/
     └── test_parsers.py
