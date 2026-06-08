@@ -1,5 +1,14 @@
 # Network Automation Framework
 
+[![Python CI](https://github.com/folk00/network-automation-framework/actions/workflows/python-ci.yml/badge.svg)](https://github.com/folk00/network-automation-framework/actions/workflows/python-ci.yml)
+[![Ansible CI](https://github.com/folk00/network-automation-framework/actions/workflows/ansible-ci.yml/badge.svg)](https://github.com/folk00/network-automation-framework/actions/workflows/ansible-ci.yml)
+[![Integration](https://github.com/folk00/network-automation-framework/actions/workflows/integration.yml/badge.svg)](https://github.com/folk00/network-automation-framework/actions/workflows/integration.yml)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Ansible](https://img.shields.io/badge/Ansible-EE0000?logo=ansible&logoColor=white)](https://www.ansible.com/)
+[![Cisco IOS](https://img.shields.io/badge/Cisco-IOS%20%2F%20IOS--XE-1BA0D7?logo=cisco&logoColor=white)](https://www.cisco.com/)
+[![Arista cEOS](https://img.shields.io/badge/Arista-cEOS-005DAA)](https://www.arista.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Lab-grade network automation framework inspired by real-world migration tooling.
 It demonstrates concurrent Cisco device collection, Jinja2 config generation,
 OSPF deployment workflows, post-change validation, and structured reporting.
